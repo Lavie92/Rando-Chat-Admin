@@ -28,6 +28,11 @@ type NavItem = {
 const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
+    name: "Manager",
+    subItems: [{ name: "Usser", path: "/users", pro: false }],
+  },
+    {
+    icon: <GridIcon />,
     name: "Dashboard",
     subItems: [{ name: "Ecommerce", path: "/", pro: false }],
   },
