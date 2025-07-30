@@ -57,7 +57,7 @@ export default function UserTable({ users }: { users: User[] }) {
               <TableCell isHeader className="px-5 py-3 text-start text-theme-xs text-gray-500 dark:text-gray-400">Tham gia</TableCell>
               <TableCell isHeader className="px-5 py-3 text-start text-theme-xs text-gray-500 dark:text-gray-400">Point công dân</TableCell>
               <TableCell isHeader className="px-5 py-3 text-start text-theme-xs text-gray-500 dark:text-gray-400">Point ảnh</TableCell>
-              <TableCell isHeader className="px-5 py-3 text-start text-theme-xs text-gray-500 dark:text-gray-400">Bị khóa?</TableCell>
+              <TableCell isHeader className="px-5 py-3 text-start text-theme-xs text-gray-500 dark:text-gray-400">Enable</TableCell>
               <TableCell isHeader className="px-5 py-3 text-start text-theme-xs text-gray-500 dark:text-gray-400">Lý do khóa</TableCell>
             </TableRow>
           </TableHeader>
