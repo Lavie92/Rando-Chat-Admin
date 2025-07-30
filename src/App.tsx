@@ -17,8 +17,7 @@ import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
-import Rooms from "./pages/Management/Rooms";
-import Messages from "./pages/Management/Messages";
+import ChatRooms from "./pages/Management/ChatRooms";
 import UserProfiles from "./pages/Management/UserProfiles";
 
 export default function App() {
@@ -57,8 +56,8 @@ export default function App() {
 
             {/* Management */}  
             <Route path="/users" element={<UserProfiles />} />
-            <Route path="/rooms" element={<Rooms />} />
-            <Route path="/messages" element={<Messages />} />
+            <Route path="/chatrooms" element={<ChatRooms />} />
+
           </Route>
 
           {/* Auth Layout */}

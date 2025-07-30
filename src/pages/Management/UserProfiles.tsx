@@ -2,7 +2,7 @@ import useUsers from "../../hooks/useUsers";
 import UserTable from "../../components/tables/BasicTables/UserTable";
 
 export default function UserProfiles() {
-  const users = useUsers();
+  const { users } = useUsers();
 
   return (
     <div className="p-6">

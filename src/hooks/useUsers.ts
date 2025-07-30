@@ -1,42 +1,22 @@
 import { useEffect, useState } from "react";
-import { ref, onValue } from "firebase/database";
-import { db } from "../firebaseConfig";
-
-export interface User {
-  uid: string;
-  email: string;
-  nickname: string;
-  isOnline: boolean;
-  lastUpdated?: number;
-  isDisabled?: boolean;
-  activeRoomId?: string;
-  status?: string;
-  joinedAt?: number;
-  inChatRoom?: boolean;
-  citizenPoint?: number;
-  photoPoint?: number;
-  banReason?: string;
-  isEmailVerified?: boolean;
-}
+import { fetchAllUsers, User } from "../services/userService";
 
 export default function useUsers() {
   const [users, setUsers] = useState<User[]>([]);
+  const [userMap, setUserMap] = useState<Record<string, User>>({});
 
   useEffect(() => {
-    const usersRef = ref(db, "users");
-    const unsub = onValue(usersRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const list = Object.entries(data).map(([uid, userData]) => ({
-          uid,
-          ...(userData as any),
-        }));
-        setUsers(list);
-      }
-    });
+    const fetch = async () => {
+      const userMap = await fetchAllUsers();
+      const userList = Object.values(userMap);
+      setUsers(userList);
+      setUserMap(userMap);
+    };
 
-    return () => unsub();
+    fetch();
   }, []);
-
-  return users;
+  console.log("Users fetched:", users);
+  console.log("Users fetched:", userMap);
+  
+  return { users, userMap };
 }
