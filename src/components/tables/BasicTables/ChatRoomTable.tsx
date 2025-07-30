@@ -1,6 +1,7 @@
 import { ChatRoom } from "../../../services/chatRoomService";
 import { User } from "../../../services/userService";
 import { useState } from "react";
+import { getDisplayName } from "../../../utils/displayName";
 
 interface Props {
   rooms: ChatRoom[];
@@ -16,18 +17,6 @@ export default function ChatRoomTable({ rooms, users }: Props) {
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
-
-  const getDisplayName = (uid: string): string => {
-  if (!uid || typeof uid !== "string") return uid;
-
-  const user = users?.[uid];
-  if (!user) {
-    console.warn("❗ Không tìm thấy user:", uid);
-    return uid;
-  }
-  return user.nickname?.trim() ? user.nickname : user.email || uid;
-};
-
 
   const handlePrev = () => currentPage > 1 && setCurrentPage((p) => p - 1);
   const handleNext = () => currentPage < totalPages && setCurrentPage((p) => p + 1);
@@ -60,13 +49,13 @@ export default function ChatRoomTable({ rooms, users }: Props) {
                   <td className="p-2">{r.active ? "🟢" : "🔴"}</td>
                   <td className="p-2">
                     {r.participantIds.length > 0
-                      ? r.participantIds.map(getDisplayName).join(", ")
+                      ? r.participantIds.map((uid) => getDisplayName(uid, users)).join(", ")
                       : "—"}
                   </td>
                   <td className="p-2">{totalMsg}</td>
                   <td className="p-2">
                     {Object.entries(r.messagePercents)
-                      .map(([uid, percent]) => `${getDisplayName(uid)}: ${percent}%`)
+                      .map(([uid, percent]) => `${getDisplayName(uid, users)}: ${percent}%`)
                       .join(" | ")}
                   </td>
                 </tr>
