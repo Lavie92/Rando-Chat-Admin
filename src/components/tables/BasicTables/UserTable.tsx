@@ -35,7 +35,7 @@ export default function UserTable({ users }: { users: User[] }) {
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
-
+  
   const handlePrev = () => {
     if (currentPage > 1) setCurrentPage((prev) => prev - 1);
   };

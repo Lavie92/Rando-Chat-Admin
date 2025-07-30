@@ -1,23 +1,14 @@
-import { useEffect, useState } from "react";
-import { ChatRoom, fetchAllChatRooms } from "../../services/chatRoomService";
-import { fetchAllUsers, User } from "../../services/userService";
+import useChatRooms from "../../hooks/useChatRooms";
+import useUsers from "../../hooks/useUsers";
 import ChatRoomTable from "../../components/tables/BasicTables/ChatRoomTable";
 
 export default function ChatRooms() {
-  const [rooms, setRooms] = useState<ChatRoom[]>([]);
-  const [users, setUsers] = useState<Record<string, User>>({});
+  const { rooms, loading: loadingRooms } = useChatRooms();
+  const { userMap: users } = useUsers(); 
 
-  useEffect(() => {
-    const getData = async () => {
-      const [chatrooms, userMap] = await Promise.all([
-        fetchAllChatRooms(),
-        fetchAllUsers(),
-      ]);
-      setRooms(chatrooms);
-      setUsers(userMap);
-    };
-    getData();
-  }, []);
+  if (loadingRooms) {
+    return <div className="p-6 text-gray-500">Đang tải dữ liệu phòng chat...</div>;
+  }
 
   return (
     <div className="p-6">
