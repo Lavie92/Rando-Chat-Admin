@@ -53,6 +53,7 @@ export default function UserTable({ users }: { users: User[] }) {
               <TableCell isHeader className="px-5 py-3 text-start text-theme-xs text-gray-500 dark:text-gray-400">User</TableCell>
               <TableCell isHeader className="px-5 py-3 text-start text-theme-xs text-gray-500 dark:text-gray-400">Phòng chat</TableCell>
               <TableCell isHeader className="px-5 py-3 text-start text-theme-xs text-gray-500 dark:text-gray-400">Trạng thái</TableCell>
+              <TableCell isHeader className="px-5 py-3 text-start text-theme-xs text-gray-500 dark:text-gray-400">Online</TableCell>
               <TableCell isHeader className="px-5 py-3 text-start text-theme-xs text-gray-500 dark:text-gray-400">Tham gia</TableCell>
               <TableCell isHeader className="px-5 py-3 text-start text-theme-xs text-gray-500 dark:text-gray-400">Point công dân</TableCell>
               <TableCell isHeader className="px-5 py-3 text-start text-theme-xs text-gray-500 dark:text-gray-400">Point ảnh</TableCell>
@@ -62,59 +63,64 @@ export default function UserTable({ users }: { users: User[] }) {
           </TableHeader>
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {paginatedUsers.map((u) => (
-            <TableRow key={u.uid}>
-              <TableCell className="w-[250px] truncate px-4 py-3 text-sm">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={u.photoURL || "/images/user/default-avatar.png"}
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
-                  <div>
-                    <div className="font-semibold">{u.nickname}</div>
-                    <div className="text-xs text-gray-500">{u.email}</div>
+              <TableRow key={u.uid}>
+                <TableCell className="w-[250px] truncate px-4 py-3 text-sm">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={u.photoURL || "/images/user/default-avatar.png"}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                    <div>
+                      <div className="font-semibold">{u.nickname}</div>
+                      <div className="text-xs text-gray-500">{u.email}</div>
+                    </div>
                   </div>
-                </div>
-              </TableCell>
+                </TableCell>
 
-              <TableCell className="w-[150px] text-sm text-gray-600 px-4 py-3 truncate">
-                {u.activeRoomId || "—"}
-              </TableCell>
+                <TableCell className="w-[150px] text-sm text-gray-600 px-4 py-3 truncate">
+                  {u.activeRoomId?.trim() ? u.activeRoomId : "—"}
+                </TableCell>
 
-              <TableCell className="w-[100px] px-4 py-3">
-                <Badge
-                  size="sm"
-                  color={
-                    u.status === "active"
-                      ? "success"
-                      : u.status === "banned"
-                      ? "error"
-                      : "warning"
-                  }
-                >
-                  {u.status || "—"}
-                </Badge>
-              </TableCell>
+                <TableCell className="w-[100px] px-4 py-3">
+                  <Badge
+                    size="sm"
+                    color={
+                      u.status === "active"
+                        ? "success"
+                        : u.status === "banned"
+                          ? "error"
+                          : "warning"
+                    }
+                  >
+                    {u.status || "—"}
+                  </Badge>
+                </TableCell>
 
-              <TableCell className="w-[120px] text-sm px-4 py-3">
-                {u.joinedAt ? new Date(u.joinedAt).toLocaleDateString() : "—"}
-              </TableCell>
+                <TableCell className="w-[80px] text-sm px-4 py-3 text-center">
+                  {u.isOnline ? "🟢" : "⚪"}
+                </TableCell>
 
-              <TableCell className="w-[80px] text-sm px-4 py-3 text-center">
-                {u.citizenPoint ?? 0}
-              </TableCell>
+                <TableCell className="w-[120px] text-sm px-4 py-3">
+                  {u.joinedAt ? new Date(u.joinedAt).toLocaleDateString() : "—"}
+                </TableCell>
 
-              <TableCell className="w-[80px] text-sm px-4 py-3 text-center">
-                {u.photoPoint ?? 0}
-              </TableCell>
+                <TableCell className="w-[80px] text-sm px-4 py-3 text-center">
+                  {u.citizenPoint ?? 0}
+                </TableCell>
 
-              <TableCell className="w-[80px] text-sm px-4 py-3 text-center">
-                {u.isDisabled ? "🚫" : "✔️"}
-              </TableCell>
+                <TableCell className="w-[80px] text-sm px-4 py-3 text-center">
+                  {u.photoPoint ?? 0}
+                </TableCell>
 
-              <TableCell className="w-[200px] truncate text-sm px-4 py-3">
-                {u.banReason || "—"}
-              </TableCell>
-            </TableRow>
+                <TableCell className="w-[80px] text-sm px-4 py-3 text-center">
+                  {u.isDisabled ? "🚫" : "✔️"}
+                </TableCell>
+
+                <TableCell className="w-[200px] truncate text-sm px-4 py-3">
+                  {u.banReason || "—"}
+                </TableCell>
+              </TableRow>
+
             ))}
           </TableBody>
         </Table>
