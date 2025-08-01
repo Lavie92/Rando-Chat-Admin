@@ -1,6 +1,6 @@
 import { db } from "../firebaseConfig";
 import { get, ref } from "firebase/database";
-
+import { fetchPaginatedData } from "./firebasePagination";
 export interface ChatRoom {
   id: string;
   active: boolean;
@@ -14,24 +14,39 @@ export interface ChatRoom {
   messagePercents: Record<string, number>;
 }
 
-export const fetchAllChatRooms = async (): Promise<ChatRoom[]> => {
+export interface PaginatedChatRooms {
+  rooms: ChatRoom[];
+  totalCount: number;
+  hasMore: boolean;
+  lastKey?: string;
+}
+
+export const getChatRoomCount = async (): Promise<number> => {
   const snapshot = await get(ref(db, "chat_rooms"));
   const data = snapshot.val();
-  const result: ChatRoom[] = [];
+  return data ? Object.keys(data).length : 0;
+};
 
-  if (data) {
-    for (const [roomId, room] of Object.entries<any>(data)) {
-      const participantIds: string[] = room.participantIds
+export const fetchChatRoomsPaginated = async (
+  _page: number,
+  limit: number,
+  startAfterKey?: string
+): Promise<PaginatedChatRooms> => {
+  const result = await fetchPaginatedData<ChatRoom>(
+    "chat_rooms",
+    limit,
+    startAfterKey,
+    (id, room) => {
+      const participantIds = room.participantIds
         ? Object.values(room.participantIds).map(String)
         : [];
 
       const messages = room.messages || {};
       const counts: Record<string, number> = {};
-
       Object.values(messages).forEach((msg: any) => {
         if (msg.senderId === "system" || msg.systemMessage) return;
-        const id = msg.senderId;
-        if (id) counts[id] = (counts[id] || 0) + 1;
+        const sid = msg.senderId;
+        if (sid) counts[sid] = (counts[sid] || 0) + 1;
       });
 
       const total = Object.values(counts).reduce((a, b) => a + b, 0);
@@ -40,8 +55,8 @@ export const fetchAllChatRooms = async (): Promise<ChatRoom[]> => {
         percents[uid] = total === 0 ? 0 : +((count / total) * 100).toFixed(1);
       });
 
-      result.push({
-        id: roomId,
+      return {
+        id,
         active: room.active ?? false,
         createdAt: room.createdAt ?? 0,
         chatType: room.chatType ?? "UNKNOWN",
@@ -51,9 +66,14 @@ export const fetchAllChatRooms = async (): Promise<ChatRoom[]> => {
         messages,
         messageCounts: counts,
         messagePercents: percents,
-      });
+      };
     }
-  }
+  );
 
-  return result;
+  return {
+    rooms: result.items,
+    totalCount: result.totalCount,
+    hasMore: result.hasMore,
+    lastKey: result.lastKey,
+  };
 };

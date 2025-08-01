@@ -5,7 +5,6 @@ export const getDisplayName = (uid: string, users: Record<string, User>): string
 
   const user = users?.[uid];
   if (!user) {
-    console.warn("❗ Không tìm thấy user:", uid);
     return uid;
   }
 
