@@ -1,36 +1,50 @@
 import { ChatRoom } from "../../../services/chatRoomService";
 import { User } from "../../../services/userService";
-import { useState } from "react";
-
+import { getDisplayName } from "../../../utils/displayName";
+import Pagination from "../../common/Pagination"; 
 interface Props {
   rooms: ChatRoom[];
   users: Record<string, User>;
+  currentPage: number;
+  totalPages: number;
+  totalCount: number;
+  loading: boolean;
+  error: string | null;
+  onPageChange: (page: number) => void;
+  onRefresh?: () => void;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
 }
 
-export default function ChatRoomTable({ rooms, users }: Props) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 5;
+export default function ChatRoomTable({
+  rooms,
+  users,
+  currentPage,
+  totalPages,
+  totalCount,
+  loading,
+  error,
+  onRefresh,
+  onPageChange,
+  hasNextPage,
+  hasPrevPage,
+}: Props) {
 
-  const totalPages = Math.ceil(rooms.length / rowsPerPage);
-  const paginatedRooms = rooms.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
-
-  const getDisplayName = (uid: string): string => {
-  if (!uid || typeof uid !== "string") return uid;
-
-  const user = users?.[uid];
-  if (!user) {
-    console.warn("❗ Không tìm thấy user:", uid);
-    return uid;
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center">
+        <div className="text-red-500 mb-4">❌ Lỗi: {error}</div>
+        {onRefresh && (
+          <button
+            onClick={onRefresh}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Thử lại
+          </button>
+        )}
+      </div>
+    );
   }
-  return user.nickname?.trim() ? user.nickname : user.email || uid;
-};
-
-
-  const handlePrev = () => currentPage > 1 && setCurrentPage((p) => p - 1);
-  const handleNext = () => currentPage < totalPages && setCurrentPage((p) => p + 1);
 
   return (
     <div className="space-y-4">
@@ -47,26 +61,24 @@ export default function ChatRoomTable({ rooms, users }: Props) {
             </tr>
           </thead>
           <tbody>
-            {paginatedRooms.map((r) => {
+            {rooms.map((r) => {
               const totalMsg = Object.values(r.messageCounts).reduce((a, b) => a + b, 0);
               return (
                 <tr key={r.id} className="border-t">
                   <td className="p-2 break-all max-w-[300px]">{r.id}</td>
                   <td className="p-2">
-                    {r.createdAt
-                      ? new Date(r.createdAt).toLocaleDateString()
-                      : "—"}
+                    {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}
                   </td>
                   <td className="p-2">{r.active ? "🟢" : "🔴"}</td>
                   <td className="p-2">
                     {r.participantIds.length > 0
-                      ? r.participantIds.map(getDisplayName).join(", ")
+                      ? r.participantIds.map((uid) => getDisplayName(uid, users)).join(", ")
                       : "—"}
                   </td>
                   <td className="p-2">{totalMsg}</td>
                   <td className="p-2">
                     {Object.entries(r.messagePercents)
-                      .map(([uid, percent]) => `${getDisplayName(uid)}: ${percent}%`)
+                      .map(([uid, percent]) => `${getDisplayName(uid, users)}: ${percent}%`)
                       .join(" | ")}
                   </td>
                 </tr>
@@ -76,26 +88,17 @@ export default function ChatRoomTable({ rooms, users }: Props) {
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="flex items-center justify-between px-2">
-        <button
-          onClick={handlePrev}
-          disabled={currentPage === 1}
-          className="px-3 py-1 bg-gray-100 text-sm rounded disabled:opacity-50 dark:bg-gray-700 dark:text-white"
-        >
-          ← Trước
-        </button>
-        <span className="text-sm text-gray-700 dark:text-gray-300">
-          Trang {currentPage} / {totalPages}
-        </span>
-        <button
-          onClick={handleNext}
-          disabled={currentPage === totalPages}
-          className="px-3 py-1 bg-gray-100 text-sm rounded disabled:opacity-50 dark:bg-gray-700 dark:text-white"
-        >
-          Tiếp →
-        </button>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        onPageChange={onPageChange}
+        hasNextPage={hasNextPage}
+        hasPrevPage={hasPrevPage}
+        loading={loading}
+        onRefresh={onRefresh}
+        label="rooms" 
+      />
     </div>
   );
 }
