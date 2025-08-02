@@ -4,19 +4,25 @@ import {
   ChatRoom,
   PaginatedChatRooms
 } from "../services/chatRoomService";
+import {
+  CHAT_ROOM_DEFAULT_PAGE_SIZE,
+  CHAT_ROOM_CACHE_KEY_PREFIX,
+  CHAT_ROOM_UNKNOWN_ERROR
+} from "../utils/constants";
 
-export default function useChatRooms(rowsPerPage: number = 5) {
+export default function useChatRooms(rowsPerPage: number = CHAT_ROOM_DEFAULT_PAGE_SIZE) {
   const [rooms, setRooms] = useState<ChatRoom[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+
   const pageCache = useRef<Map<number, { rooms: ChatRoom[]; lastKey?: string }>>(new Map());
 
   const fetchPage = useCallback(
     async (page: number, force = false) => {
       if (!force && pageCache.current.has(page)) {
-        console.log("[useChatRooms] Dùng cache cho trang", page);
+        console.log(`${CHAT_ROOM_CACHE_KEY_PREFIX} Dùng cache cho trang`, page);
         setRooms(pageCache.current.get(page)!.rooms);
         return;
       }
@@ -31,7 +37,7 @@ export default function useChatRooms(rowsPerPage: number = 5) {
           startAfterKey = prevPageData?.lastKey;
         }
 
-        console.log(`[useChatRooms] Fetch trang ${page} | startAfterKey: ${startAfterKey}`);
+        console.log(`${CHAT_ROOM_CACHE_KEY_PREFIX} Fetch trang ${page} | startAfterKey: ${startAfterKey}`);
 
         const result: PaginatedChatRooms = await fetchChatRoomsPaginated(
           page,
@@ -39,8 +45,8 @@ export default function useChatRooms(rowsPerPage: number = 5) {
           startAfterKey
         );
 
-        console.log(`[useChatRooms] Lấy ${result.rooms.length} rooms:`, result.rooms);
-        console.log(`[useChatRooms] lastKey của trang ${page}:`, result.lastKey);
+        console.log(`${CHAT_ROOM_CACHE_KEY_PREFIX} Lấy ${result.rooms.length} rooms:`, result.rooms);
+        console.log(`${CHAT_ROOM_CACHE_KEY_PREFIX} lastKey của trang ${page}:`, result.lastKey);
 
         setRooms(result.rooms);
         setTotalCount(result.totalCount);
@@ -50,7 +56,7 @@ export default function useChatRooms(rowsPerPage: number = 5) {
           lastKey: result.lastKey
         });
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
+        setError(err instanceof Error ? err.message : CHAT_ROOM_UNKNOWN_ERROR);
         setRooms([]);
       } finally {
         setLoading(false);
@@ -81,9 +87,9 @@ export default function useChatRooms(rowsPerPage: number = 5) {
     loading,
     error,
     currentPage,
-    totalPages: Math.ceil(totalCount / rowsPerPage),
+    totalPages: Math.max(1, Math.ceil(totalCount / rowsPerPage)),
     goToPage,
-    refreshCurrentPage, 
+    refreshCurrentPage,
     clearCache,
     hasNextPage: currentPage < Math.ceil(totalCount / rowsPerPage),
     hasPrevPage: currentPage > 1

@@ -1,5 +1,6 @@
 import useUsers from "../../hooks/useUsers";
 import UserTable from "../../components/tables/BasicTables/UserTable";
+import { USER_DEFAULT_PAGE_SIZE } from "../../utils/constants";
 
 export default function UserProfiles() {
   const {
@@ -13,7 +14,7 @@ export default function UserProfiles() {
     refreshCurrentPage,
     hasNextPage,
     hasPrevPage
-  } = useUsers(5); // 5 items per page
+  } = useUsers(USER_DEFAULT_PAGE_SIZE);
 
   return (
     <div className="p-6">
@@ -23,7 +24,7 @@ export default function UserProfiles() {
           Tổng cộng: {totalCount} người dùng
         </div>
       </div>
-      
+
       <UserTable
         users={users}
         loading={loading}

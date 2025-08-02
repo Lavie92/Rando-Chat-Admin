@@ -3,6 +3,10 @@ import useChatRooms from "../../hooks/useChatRooms";
 import useUsers from "../../hooks/useUsers";
 import ChatRoomTable from "../../components/tables/BasicTables/ChatRoomTable";
 import { User } from "../../services/userService";
+import {
+  CHAT_ROOM_LIST_PAGE_SIZE,
+  CHAT_ROOM_USER_FETCH_LIMIT
+} from "../../utils/constants";
 
 export default function ChatRooms() {
   const {
@@ -16,9 +20,9 @@ export default function ChatRooms() {
     goToPage,
     hasNextPage,
     hasPrevPage,
-  } = useChatRooms(5); 
+  } = useChatRooms(CHAT_ROOM_LIST_PAGE_SIZE);
 
-  const { users } = useUsers(100); 
+  const { users } = useUsers(CHAT_ROOM_USER_FETCH_LIMIT);
 
   const userMap: Record<string, User> = useMemo(() => {
     const map: Record<string, User> = {};

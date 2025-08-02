@@ -1,6 +1,8 @@
 import { db } from "../firebaseConfig";
 import { get, ref } from "firebase/database";
 import { fetchPaginatedData } from "./firebasePagination";
+import { CHAT_ROOM_FIREBASE_PATH } from "../utils/constants";
+
 export interface ChatRoom {
   id: string;
   active: boolean;
@@ -22,7 +24,7 @@ export interface PaginatedChatRooms {
 }
 
 export const getChatRoomCount = async (): Promise<number> => {
-  const snapshot = await get(ref(db, "chat_rooms"));
+  const snapshot = await get(ref(db, CHAT_ROOM_FIREBASE_PATH));
   const data = snapshot.val();
   return data ? Object.keys(data).length : 0;
 };
@@ -33,7 +35,7 @@ export const fetchChatRoomsPaginated = async (
   startAfterKey?: string
 ): Promise<PaginatedChatRooms> => {
   const result = await fetchPaginatedData<ChatRoom>(
-    "chat_rooms",
+    CHAT_ROOM_FIREBASE_PATH,
     limit,
     startAfterKey,
     (id, room) => {

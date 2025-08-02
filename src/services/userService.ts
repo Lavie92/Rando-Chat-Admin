@@ -1,35 +1,37 @@
 import { db } from "../firebaseConfig";
 import { get, ref } from "firebase/database";
 import { fetchPaginatedData } from "./firebasePagination";
+import { USER_FIREBASE_PATH } from "../utils/constants";
+
 export interface User {
-    uid: string;
-    email: string;
-    nickname: string;
-    isOnline: boolean;
-    lastUpdated?: number;
-    isDisabled?: boolean;
-    activeRoomId?: string;
-    status?: string;
-    joinedAt?: number;
-    inChatRoom?: boolean;
-    citizenPoint?: number;
-    photoPoint?: number;
-    banReason?: string;
-    isEmailVerified?: boolean;
-    photoURL?: string;
+  uid: string;
+  email: string;
+  nickname: string;
+  isOnline: boolean;
+  lastUpdated?: number;
+  isDisabled?: boolean;
+  activeRoomId?: string;
+  status?: string;
+  joinedAt?: number;
+  inChatRoom?: boolean;
+  citizenPoint?: number;
+  photoPoint?: number;
+  banReason?: string;
+  isEmailVerified?: boolean;
+  photoURL?: string;
 }
 
 export interface PaginatedUsers {
-    users: User[];
-    totalCount: number;
-    hasMore: boolean;
-    lastKey?: string;
+  users: User[];
+  totalCount: number;
+  hasMore: boolean;
+  lastKey?: string;
 }
 
 export const getUsersCount = async (): Promise<number> => {
-    const snapshot = await get(ref(db, "users"));
-    const data = snapshot.val();
-    return data ? Object.keys(data).length : 0;
+  const snapshot = await get(ref(db, USER_FIREBASE_PATH));
+  const data = snapshot.val();
+  return data ? Object.keys(data).length : 0;
 };
 
 export const fetchUsersPaginated = async (
@@ -38,7 +40,7 @@ export const fetchUsersPaginated = async (
   startAfterKey?: string
 ): Promise<PaginatedUsers> => {
   const result = await fetchPaginatedData<User>(
-    "users",
+    USER_FIREBASE_PATH,
     limit,
     startAfterKey,
     (uid, user) => ({

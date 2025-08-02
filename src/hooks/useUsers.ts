@@ -1,20 +1,24 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { fetchUsersPaginated, User, PaginatedUsers } from "../services/userService";
+import {
+  USER_DEFAULT_PAGE_SIZE,
+  USER_UNKNOWN_ERROR,
+  USER_CACHE_KEY_PREFIX
+} from "../utils/constants";
 
-export default function useUsers(rowsPerPage: number = 5) {
+export default function useUsers(rowsPerPage: number = USER_DEFAULT_PAGE_SIZE) {
   const [users, setUsers] = useState<User[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // ✅ Dùng ref để cache không bị reset qua các lần render
   const pageCache = useRef<Map<number, { users: User[]; lastKey?: string }>>(new Map());
 
   const fetchPage = useCallback(
     async (page: number, force: boolean = false) => {
       if (!force && pageCache.current.has(page)) {
-        console.log(`[useUsers] Dùng cache cho trang ${page}`);
+        console.log(`${USER_CACHE_KEY_PREFIX} Dùng cache cho trang ${page}`);
         setUsers(pageCache.current.get(page)!.users);
         return;
       }
@@ -30,7 +34,7 @@ export default function useUsers(rowsPerPage: number = 5) {
           startAfterKey = prevPageData?.lastKey;
         }
 
-        console.log(`[useUsers] Fetch trang ${page} | startAfterKey: ${startAfterKey}`);
+        console.log(`${USER_CACHE_KEY_PREFIX} Fetch trang ${page} | startAfterKey: ${startAfterKey}`);
 
         const result: PaginatedUsers = await fetchUsersPaginated(
           page,
@@ -41,19 +45,20 @@ export default function useUsers(rowsPerPage: number = 5) {
         setUsers(result.users);
         setTotalCount(result.totalCount);
 
-        console.log(`[useUsers] Lấy ${result.users.length} users:`, result.users.map((u) => ({
+        console.log(`${USER_CACHE_KEY_PREFIX} Lấy ${result.users.length} users:`, result.users.map((u) => ({
           id: u.uid,
           nickname: u.nickname,
           email: u.email
         })));
-        console.log(`[useUsers] lastKey của trang ${page}: ${result.lastKey}`);
+
+        console.log(`${USER_CACHE_KEY_PREFIX} lastKey của trang ${page}: ${result.lastKey}`);
 
         pageCache.current.set(page, {
           users: result.users,
           lastKey: result.lastKey
         });
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to fetch users");
+        setError(err instanceof Error ? err.message : USER_UNKNOWN_ERROR);
         setUsers([]);
       } finally {
         setLoading(false);
@@ -84,7 +89,7 @@ export default function useUsers(rowsPerPage: number = 5) {
     loading,
     error,
     currentPage,
-    totalPages: Math.ceil(totalCount / rowsPerPage),
+    totalPages: Math.max(1, Math.ceil(totalCount / rowsPerPage)),
     goToPage,
     refreshCurrentPage,
     clearCache,
