@@ -1,0 +1,11 @@
+export const CHAT_ROOM_DEFAULT_PAGE_SIZE = 5;
+export const CHAT_ROOM_FIREBASE_PATH = "chat_rooms";
+export const CHAT_ROOM_UNKNOWN_ERROR = "Unknown error";
+export const CHAT_ROOM_LAST_KEY = "lastKey";
+export const CHAT_ROOM_CACHE_KEY_PREFIX = "[useChatRooms]";
+export const USER_DEFAULT_PAGE_SIZE = 5;
+export const USER_FIREBASE_PATH = "users";
+export const USER_UNKNOWN_ERROR = "Failed to fetch users";
+export const USER_CACHE_KEY_PREFIX = "[useUsers]";
+export const CHAT_ROOM_LIST_PAGE_SIZE = 5;
+export const CHAT_ROOM_USER_FETCH_LIMIT = 100;
